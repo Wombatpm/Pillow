@@ -638,7 +638,12 @@ unpackRGBa(UINT8* out, const UINT8* in, int pixels)
         int a = in[3];
         if (!a)
             out[R] = out[G] = out[B] = out[A] = 0;
-        else {
+        else if (a == 255) {
+            out[R] = in[0];
+            out[G] = in[1];
+            out[B] = in[2];
+            out[A] = a;
+        } else {
             out[R] = CLIP(in[0] * 255 / a);
             out[G] = CLIP(in[1] * 255 / a);
             out[B] = CLIP(in[2] * 255 / a);
@@ -861,13 +866,6 @@ copy2(UINT8* out, const UINT8* in, int pixels)
 {
     /* I;16 */
     memcpy(out, in, pixels*2);
-}
-
-static void
-copy3(UINT8* out, const UINT8* in, int pixels)
-{
-    /* LAB triples, 24bit */
-    memcpy(out, in, 3 * pixels);
 }
 
 static void
@@ -1121,6 +1119,12 @@ static struct {
     {"RGBA",    "B",            8,      band2},
     {"RGBA",    "A",            8,      band3},
 
+    /* true colour w. alpha premultiplied */
+    {"RGBa",    "RGBa",         32,     copy4},
+    {"RGBa",    "BGRa",         32,     unpackBGRA},
+    {"RGBa",    "aRGB",         32,     unpackARGB},
+    {"RGBa",    "aBGR",         32,     unpackABGR},
+
     /* true colour w. padding */
     {"RGBX",    "RGB",          24,     ImagingUnpackRGB},
     {"RGBX",    "RGB;L",        24,     unpackRGBL},
@@ -1165,6 +1169,12 @@ static struct {
     {"LAB",  	"L",            8,      band0},
     {"LAB",  	"A",            8,      band1},
     {"LAB",  	"B",            8,      band2},
+
+    /* HSV Color */
+    {"HSV",	    "HSV",	        24,	    ImagingUnpackRGB},
+    {"HSV",  	"H",            8,      band0},
+    {"HSV",  	"S",            8,      band1},
+    {"HSV",  	"V",            8,      band2},
 
     /* integer variations */
     {"I",       "I",            32,     copy4},

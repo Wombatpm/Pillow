@@ -1,55 +1,91 @@
-from tester import *
+from helper import unittest, PillowTestCase
 
 from PIL import Image
 from PIL import ImageOps
 from PIL import ImageFilter
 
-im = Image.open("Images/lena.ppm")
+im = Image.open("Tests/images/hopper.ppm")
+snakes = Image.open("Tests/images/color_snakes.png")
 
-def test_ops_api():
 
-    i = ImageOps.gaussian_blur(im, 2.0)
-    assert_equal(i.mode, "RGB")
-    assert_equal(i.size, (128, 128))
-    # i.save("blur.bmp")
+class TestImageOpsUsm(PillowTestCase):
 
-    i = ImageOps.usm(im, 2.0, 125, 8)
-    assert_equal(i.mode, "RGB")
-    assert_equal(i.size, (128, 128))
-    # i.save("usm.bmp")
+    def test_ops_api(self):
 
-def test_filter_api():
+        i = ImageOps.gaussian_blur(im, 2.0)
+        self.assertEqual(i.mode, "RGB")
+        self.assertEqual(i.size, (128, 128))
+        # i.save("blur.bmp")
 
-    filter = ImageFilter.GaussianBlur(2.0)
-    i = im.filter(filter)
-    assert_equal(i.mode, "RGB")
-    assert_equal(i.size, (128, 128))
+        i = ImageOps.unsharp_mask(im, 2.0, 125, 8)
+        self.assertEqual(i.mode, "RGB")
+        self.assertEqual(i.size, (128, 128))
+        # i.save("usm.bmp")
 
-    filter = ImageFilter.UnsharpMask(2.0, 125, 8)
-    i = im.filter(filter)
-    assert_equal(i.mode, "RGB")
-    assert_equal(i.size, (128, 128))
+    def test_filter_api(self):
 
-def test_usm():
+        filter = ImageFilter.GaussianBlur(2.0)
+        i = im.filter(filter)
+        self.assertEqual(i.mode, "RGB")
+        self.assertEqual(i.size, (128, 128))
 
-    usm = ImageOps.unsharp_mask
-    assert_exception(ValueError, lambda: usm(im.convert("1")))
-    assert_no_exception(lambda: usm(im.convert("L")))
-    assert_exception(ValueError, lambda: usm(im.convert("I")))
-    assert_exception(ValueError, lambda: usm(im.convert("F")))
-    assert_no_exception(lambda: usm(im.convert("RGB")))
-    assert_no_exception(lambda: usm(im.convert("RGBA")))
-    assert_no_exception(lambda: usm(im.convert("CMYK")))
-    assert_exception(ValueError, lambda: usm(im.convert("YCbCr")))
+        filter = ImageFilter.UnsharpMask(2.0, 125, 8)
+        i = im.filter(filter)
+        self.assertEqual(i.mode, "RGB")
+        self.assertEqual(i.size, (128, 128))
 
-def test_blur():
+    def test_usm_formats(self):
 
-    blur = ImageOps.gaussian_blur
-    assert_exception(ValueError, lambda: blur(im.convert("1")))
-    assert_no_exception(lambda: blur(im.convert("L")))
-    assert_exception(ValueError, lambda: blur(im.convert("I")))
-    assert_exception(ValueError, lambda: blur(im.convert("F")))
-    assert_no_exception(lambda: blur(im.convert("RGB")))
-    assert_no_exception(lambda: blur(im.convert("RGBA")))
-    assert_no_exception(lambda: blur(im.convert("CMYK")))
-    assert_exception(ValueError, lambda: blur(im.convert("YCbCr")))
+        usm = ImageOps.unsharp_mask
+        self.assertRaises(ValueError, lambda: usm(im.convert("1")))
+        usm(im.convert("L"))
+        self.assertRaises(ValueError, lambda: usm(im.convert("I")))
+        self.assertRaises(ValueError, lambda: usm(im.convert("F")))
+        usm(im.convert("RGB"))
+        usm(im.convert("RGBA"))
+        usm(im.convert("CMYK"))
+        self.assertRaises(ValueError, lambda: usm(im.convert("YCbCr")))
+
+    def test_blur_formats(self):
+
+        blur = ImageOps.gaussian_blur
+        self.assertRaises(ValueError, lambda: blur(im.convert("1")))
+        blur(im.convert("L"))
+        self.assertRaises(ValueError, lambda: blur(im.convert("I")))
+        self.assertRaises(ValueError, lambda: blur(im.convert("F")))
+        blur(im.convert("RGB"))
+        blur(im.convert("RGBA"))
+        blur(im.convert("CMYK"))
+        self.assertRaises(ValueError, lambda: blur(im.convert("YCbCr")))
+
+    def test_usm_accuracy(self):
+
+        src = snakes.convert('RGB')
+        i = src._new(ImageOps.unsharp_mask(src, 5, 1024, 0))
+        # Image should not be changed because it have only 0 and 255 levels.
+        self.assertEqual(i.tobytes(), src.tobytes())
+
+    def test_blur_accuracy(self):
+
+        i = snakes._new(ImageOps.gaussian_blur(snakes, .4))
+        # These pixels surrounded with pixels with 255 intensity.
+        # They must be very close to 255.
+        for x, y, c in [(1, 0, 1), (2, 0, 1), (7, 8, 1), (8, 8, 1), (2, 9, 1),
+                        (7, 3, 0), (8, 3, 0), (5, 8, 0), (5, 9, 0), (1, 3, 0),
+                        (4, 3, 2), (4, 2, 2)]:
+            self.assertGreaterEqual(i.im.getpixel((x, y))[c], 250)
+        # Fuzzy match.
+        gp = lambda x, y: i.im.getpixel((x, y))
+        self.assertTrue(236 <= gp(7, 4)[0] <= 239)
+        self.assertTrue(236 <= gp(7, 5)[2] <= 239)
+        self.assertTrue(236 <= gp(7, 6)[2] <= 239)
+        self.assertTrue(236 <= gp(7, 7)[1] <= 239)
+        self.assertTrue(236 <= gp(8, 4)[0] <= 239)
+        self.assertTrue(236 <= gp(8, 5)[2] <= 239)
+        self.assertTrue(236 <= gp(8, 6)[2] <= 239)
+        self.assertTrue(236 <= gp(8, 7)[1] <= 239)
+
+if __name__ == '__main__':
+    unittest.main()
+
+# End of file

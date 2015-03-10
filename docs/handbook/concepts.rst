@@ -14,8 +14,10 @@ same dimensions and depth.
 To get the number and names of bands in an image, use the
 :py:meth:`~PIL.Image.Image.getbands` method.
 
-Mode
-----
+.. _concept-modes:
+
+Modes
+-----
 
 The :term:`mode` of an image defines the type and depth of a pixel in the
 image. The current release supports the following standard modes:
@@ -27,6 +29,8 @@ image. The current release supports the following standard modes:
     * ``RGBA`` (4x8-bit pixels, true color with transparency mask)
     * ``CMYK`` (4x8-bit pixels, color separation)
     * ``YCbCr`` (3x8-bit pixels, color video format)
+    * ``LAB`` (3x8-bit pixels, the L*a*b color space)
+    * ``HSV`` (3x8-bit pixels, Hue, Saturation, Value color space)
     * ``I`` (32-bit signed integer pixels)
     * ``F`` (32-bit floating point pixels)
 
@@ -34,7 +38,7 @@ PIL also provides limited support for a few special modes, including ``LA`` (L
 with alpha), ``RGBX`` (true color with padding) and ``RGBa`` (true color with
 premultiplied alpha). However, PIL doesn’t support user-defined modes; if you
 to handle band combinations that are not listed above, use a sequence of Image
-objects.
+objects. 
 
 You can read the mode of an image through the :py:attr:`~PIL.Image.Image.mode`
 attribute. This is a string containing one of the above values.
@@ -85,25 +89,21 @@ pixel, the Python Imaging Library provides four different resampling *filters*.
     Pick the nearest pixel from the input image. Ignore all other input pixels.
 
 ``BILINEAR``
-    Use linear interpolation over a 2x2 environment in the input image. Note
-    that in the current version of PIL, this filter uses a fixed input
-    environment when downsampling.
+    For resize calculate the output pixel value using linear interpolation
+    on all pixels that may contribute to the output value.
+    For other transformations linear interpolation over a 2x2 environment
+    in the input image is used.
 
 ``BICUBIC``
-    Use cubic interpolation over a 4x4 environment in the input image. Note
-    that in the current version of PIL, this filter uses a fixed input
-    environment when downsampling.
+    For resize calculate the output pixel value using cubic interpolation
+    on all pixels that may contribute to the output value.
+    For other transformations cubic interpolation over a 4x4 environment
+    in the input image is used.
 
-``ANTIALIAS``
-    Calculate the output pixel value using a high-quality resampling filter (a
+``LANCZOS``
+    Calculate the output pixel value using a high-quality Lanczos filter (a
     truncated sinc) on all pixels that may contribute to the output value. In
     the current version of PIL, this filter can only be used with the resize
     and thumbnail methods.
 
     .. versionadded:: 1.1.3
-
-Note that in the current version of PIL, the ``ANTIALIAS`` filter is the only
-filter that behaves properly when downsampling (that is, when converting a
-large image to a small one). The ``BILINEAR`` and ``BICUBIC`` filters use a
-fixed input environment, and are best used for scale-preserving geometric
-transforms and upsamping.

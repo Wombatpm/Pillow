@@ -20,14 +20,6 @@ can be found here.
     :undoc-members:
     :show-inheritance:
 
-:mod:`ExifTags` Module
-----------------------
-
-.. automodule:: PIL.ExifTags
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`FontFile` Module
 ----------------------
 
@@ -60,15 +52,8 @@ can be found here.
     :undoc-members:
     :show-inheritance:
 
-:mod:`ImageCms` Module
-----------------------
-
-.. automodule:: PIL.ImageCms
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. intentionally skipped documenting this because it's not documented anywhere
+
 :mod:`ImageDraw2` Module
 ------------------------
 
@@ -78,6 +63,7 @@ can be found here.
     :show-inheritance:
 
 .. intentionally skipped documenting this because it's deprecated
+
 :mod:`ImageFileIO` Module
 -------------------------
 
@@ -85,6 +71,7 @@ can be found here.
     :members:
     :undoc-members:
     :show-inheritance:
+
 
 :mod:`ImageShow` Module
 -----------------------
@@ -110,14 +97,6 @@ can be found here.
     :undoc-members:
     :show-inheritance:
 
-:mod:`OleFileIO` Module
------------------------
-
-.. automodule:: PIL.OleFileIO
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`PaletteFile` Module
 -------------------------
 
@@ -133,6 +112,29 @@ can be found here.
     :members:
     :undoc-members:
     :show-inheritance:
+
+:class:`PngImagePlugin.iTXt` Class
+----------------------------------
+
+.. autoclass:: PIL.PngImagePlugin.iTXt
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+    .. method:: __new__(cls, text, lang, tkey)
+
+        :param value: value for this key
+        :param lang: language code
+        :param tkey: UTF-8 version of the key name
+
+:class:`PngImagePlugin.PngInfo` Class
+-------------------------------------
+
+.. autoclass:: PIL.PngImagePlugin.PngInfo
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 :mod:`TarIO` Module
 -------------------

@@ -22,7 +22,7 @@
 
 #include "Imaging.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include "ImDib.h"
 
@@ -204,19 +204,6 @@ ImagingNewDIB(const char *mode, int xsize, int ysize)
 
 #endif
 
-#if 0
-	    {
-		/* DEBUG: dump palette to file */
-		FILE *err = fopen("dib.pal", "w");
-		for (i = 0; i < 256; i++)
-		    fprintf(err, "%d: %d/%d/%d\n", i,
-			    pal->palPalEntry[i].peRed,
-			    pal->palPalEntry[i].peGreen,
-			    pal->palPalEntry[i].peBlue);
-		fclose(err);
-	    }
-#endif
-
 	    dib->palette = CreatePalette(pal);
 
 	}
@@ -308,4 +295,4 @@ ImagingDeleteDIB(ImagingDIB dib)
     free(dib->info);
 }
 
-#endif /* WIN32 */
+#endif /* _WIN32 */

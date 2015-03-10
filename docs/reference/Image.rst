@@ -41,13 +41,18 @@ Create thumbnails
     for infile in glob.glob("*.jpg"):
         file, ext = os.path.splitext(infile)
         im = Image.open(infile)
-        im.thumbnail(size, Image.ANTIALIAS)
+        im.thumbnail(size)
         im.save(file + ".thumbnail", "JPEG")
 
 Functions
 ---------
 
 .. autofunction:: open
+
+    .. warning:: To protect against potential DOS attacks caused by "`decompression bombs`_" (i.e. malicious files which decompress into a huge amount of data and are designed to crash or cause disruption by using up a lot of memory), Pillow will issue a `DecompressionBombWarning` if the image is over a certain limit. If desired, the warning can be turned into an error with `warnings.simplefilter('error', Image.DecompressionBombWarning)` or suppressed entirely with `warnings.simplefilter('ignore', Image.DecompressionBombWarning)`. See also `the logging documentation`_ to have warnings output to the logging facility instead of stderr.
+
+	.. _decompression bombs: https://en.wikipedia.org/wiki/Zip_bomb
+	.. _the logging documentation: https://docs.python.org/2/library/logging.html?highlight=logging#integration-with-the-warnings-module
 
 Image processing
 ^^^^^^^^^^^^^^^^
@@ -111,6 +116,7 @@ ITU-R 709, using the D65 luminant) to the CIE XYZ color space:
 .. automethod:: PIL.Image.Image.getcolors
 .. automethod:: PIL.Image.Image.getdata
 .. automethod:: PIL.Image.Image.getextrema
+.. automethod:: PIL.Image.Image.getpalette
 .. automethod:: PIL.Image.Image.getpixel
 .. automethod:: PIL.Image.Image.histogram
 .. automethod:: PIL.Image.Image.offset
@@ -130,15 +136,16 @@ ITU-R 709, using the D65 luminant) to the CIE XYZ color space:
 .. automethod:: PIL.Image.Image.tell
 .. automethod:: PIL.Image.Image.thumbnail
 .. automethod:: PIL.Image.Image.tobitmap
+.. automethod:: PIL.Image.Image.tobytes
 .. automethod:: PIL.Image.Image.tostring
 .. automethod:: PIL.Image.Image.transform
 .. automethod:: PIL.Image.Image.transpose
 .. automethod:: PIL.Image.Image.verify
 
 .. automethod:: PIL.Image.Image.fromstring
-.. deprecated:: 2.0
 
 .. automethod:: PIL.Image.Image.load
+.. automethod:: PIL.Image.Image.close
 
 Attributes
 ----------
@@ -157,7 +164,7 @@ Instances of the :py:class:`Image` class have the following attributes:
 
     Image mode. This is a string specifying the pixel format used by the image.
     Typical values are “1”, “L”, “RGB”, or “CMYK.” See
-    :doc:`../handbook/concepts` for a full list.
+    :ref:`concept-modes` for a full list.
 
     :type: :py:class:`string`
 
@@ -185,5 +192,7 @@ Instances of the :py:class:`Image` class have the following attributes:
     keys are not standardized, it’s not possible for a method to know if the
     operation affects the dictionary. If you need the information later on,
     keep a reference to the info dictionary returned from the open method.
+
+    Unless noted elsewhere, this dictionary does not affect saving files. 
 
     :type: :py:class:`dict`

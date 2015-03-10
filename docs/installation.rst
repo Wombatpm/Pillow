@@ -44,15 +44,19 @@ run::
 External libraries
 ------------------
 
+.. note::
+
+    You *do not* need to install all of the external libraries to use Pillow's basic features.
+
 Many of Pillow's features require external libraries:
 
 * **libjpeg** provides JPEG functionality.
 
-  * Pillow has been tested with libjpeg versions **6b**, **8**, and **9**
+  * Pillow has been tested with libjpeg versions **6b**, **8**, and **9** and libjpeg-turbo version **8**.
 
 * **zlib** provides access to compressed PNGs
 
-* **libtiff** provides group4 tiff functionality
+* **libtiff** provides compressed TIFF functionality
 
   * Pillow has been tested with libtiff versions **3.x** and **4.0**
 
@@ -63,26 +67,59 @@ Many of Pillow's features require external libraries:
   * Pillow version 2.2.1 and below uses liblcms1, Pillow 2.3.0 and
     above uses liblcms2. Tested with **1.19** and **2.2**.
 
-* **libwebp** provides the Webp format.
+* **libwebp** provides the WebP format.
 
   * Pillow has been tested with version **0.1.3**, which does not read
-    transparent webp files. Versions **0.3.0** and **0.4.0** support
-    transparency. 
+    transparent WebP files. Versions **0.3.0** and **0.4.0** support
+    transparency.
 
-* **tcl/tk** provides support for tkinter bitmap and photo images. 
+* **tcl/tk** provides support for tkinter bitmap and photo images.
 
-* **openjpeg** provides JPEG 2000 functionality. 
+* **openjpeg** provides JPEG 2000 functionality.
 
-  * Pillow has been tested with openjpeg **2.0.0**.
+  * Pillow has been tested with openjpeg **2.0.0** and **2.1.0**.
 
-If the prerequisites are installed in the standard library locations for your
-machine (e.g. :file:`/usr` or :file:`/usr/local`), no additional configuration
-should be required. If they are installed in a non-standard location, you may
-need to configure setuptools to use those locations (i.e. by editing
-:file:`setup.py` and/or :file:`setup.cfg`). Once you have installed the
-prerequisites, run::
+Once you have installed the prerequisites,run::
 
     $ pip install Pillow
+
+If the prerequisites are installed in the standard library locations
+for your machine (e.g. :file:`/usr` or :file:`/usr/local`), no
+additional configuration should be required. If they are installed in
+a non-standard location, you may need to configure setuptools to use
+those locations by editing :file:`setup.py` or
+:file:`setup.cfg`, or by adding environment variables on the command
+line::
+
+    $ CFLAGS="-I/usr/pkg/include" pip install pillow
+
+Build Options
+-------------
+
+* Environment Variable: ``MAX_CONCURRENCY=n``. By default, Pillow will
+  use multiprocessing to build the extension on all available CPUs,
+  but not more than 4. Setting ``MAX_CONCURRENCY`` to 1 will disable
+  parallel building.
+
+* Build flags: ``--disable-zlib``, ``--disable-jpeg``,
+  ``--disable-tiff``, ``--disable-freetype``, ``--disable-tcl``,
+  ``--disable-tk``, ``--disable-lcms``, ``--disable-webp``,
+  ``--disable-webpmux``, ``--disable-jpeg2000``. Disable building the
+  corresponding feature even if the development libraries are present
+  on the building machine.
+
+* Build flags: ``--enable-zlib``, ``--enable-jpeg``,
+  ``--enable-tiff``, ``--enable-freetype``, ``--enable-tcl``,
+  ``--enable-tk``, ``--enable-lcms``, ``--enable-webp``,
+  ``--enable-webpmux``, ``--enable-jpeg2000``. Require that the
+  corresponding feature is built. The build will raise an exception if
+  the libraries are not found. Webpmux (WebP metadata) relies on WebP
+  support. Tcl and Tk also must be used together.
+
+Sample Usage::
+
+    $ MAX_CONCURRENCY=1 python setup.py build-ext --enable-[feature] install
+
 
 Linux installation
 ------------------
@@ -91,11 +128,6 @@ Linux installation
 
     Fedora, Debian/Ubuntu, and ArchLinux include Pillow (instead of PIL) with
     their distributions. Consider using those instead of installing manually.
-
-.. note::
-
-    You *do not* need to install all of the external libraries to get Pillow's
-    basics to work.
 
 **We do not provide binaries for Linux.** If you didn't build Python from
 source, make sure you have Python's development libraries installed. In Debian
@@ -108,19 +140,19 @@ Or for Python 3::
     $ sudo apt-get install python3-dev python3-setuptools
 
 In Fedora, the command is::
-    
+
     $ sudo yum install python-devel
 
-Prerequisites are installed on **Ubuntu 10.04 LTS** with::
-
-    $ sudo apt-get install libtiff4-dev libjpeg62-dev zlib1g-dev \
-        libfreetype6-dev tcl8.5-dev tk8.5-dev python-tk
-
-Prerequisites are installed with on **Ubuntu 12.04 LTS** or **Raspian Wheezy
+Prerequisites are installed on **Ubuntu 12.04 LTS** or **Raspian Wheezy
 7.0** with::
 
     $ sudo apt-get install libtiff4-dev libjpeg8-dev zlib1g-dev \
         libfreetype6-dev liblcms2-dev libwebp-dev tcl8.5-dev tk8.5-dev python-tk
+
+Prerequisites are installed on **Ubuntu 14.04 LTS** with::
+
+    $ sudo apt-get install libtiff5-dev libjpeg8-dev zlib1g-dev \
+        libfreetype6-dev liblcms2-dev libwebp-dev tcl8.6-dev tk8.6-dev python-tk
 
 Prerequisites are installed on **Fedora 20** with::
 
@@ -131,22 +163,13 @@ Prerequisites are installed on **Fedora 20** with::
 Mac OS X installation
 ---------------------
 
-.. note::
+We provide binaries for OS X in the form of `Python Wheels <http://wheel.readthedocs.org/en/latest/index.html>`_. Alternatively you can compile Pillow with with XCode.
 
-    You *do not* need to install all of the external libraries to get Pillow's
-    basics to work.
-
-**We do not provide binaries for OS X**, so you'll need XCode to install
-Pillow. (XCode 4.2 on 10.6 will work with the Official Python binary
-distribution. Otherwise, use whatever XCode you used to compile Python.)
-
-The easiest way to install the prerequisites is via `Homebrew
-<http://mxcl.github.com/homebrew/>`_. After you install Homebrew, run::
+The easiest way to install external libraries is via `Homebrew <http://mxcl.github.com/homebrew/>`_. After you install Homebrew, run::
 
     $ brew install libtiff libjpeg webp little-cms2
 
-If you've built your own Python, then you should be able to install Pillow
-using::
+Install Pillow with::
 
     $ pip install Pillow
 
@@ -183,7 +206,26 @@ to a specific version:
 
 ::
 
-    $ pip install --use-wheel Pillow==2.3.0
+    $ pip install --use-wheel Pillow==2.6.1
+
+FreeBSD installation
+---------------------
+
+.. Note:: Only FreeBSD 10 tested
+
+
+Make sure you have Python's development libraries installed.::
+
+    $ sudo pkg install python2
+
+Or for Python 3::
+
+    $ sudo pkg install python3
+
+Prerequisites are installed on **FreeBSD 10** with::
+
+    $ sudo pkg install jpeg tiff webp lcms2 freetype2
+
 
 
 Platform support
@@ -199,12 +241,14 @@ current versions of Linux, OS X, and Windows.
     Contributors please test on your platform, edit this document, and send a
     pull request.
 
-+----------------------------------+-------------+------------------------------+------------------------------+-----------------------+ 
++----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 |**Operating system**              |**Supported**|**Tested Python versions**    |**Tested Pillow versions**    |**Tested processors**  |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
-| Mac OS X 10.8 Mountain Lion      |Yes          | 2.6,2.7,3.2,3.3              |                              |x86-64                 |
+| Mac OS X 10.10 Yosemite          |             |                              |                              |x86-64                 |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
-| Mac OS X 10.7 Lion               |Yes          | 2.6,2.7,3.2,3.3              | 2.2.0                        |x86-64                 |
+| Mac OS X 10.9 Mavericks          |Yes          | 2.7,3.4                      | 2.6.1                        |x86-64                 |
++----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
+| Mac OS X 10.8 Mountain Lion      |Yes          | 2.6,2.7,3.2,3.3              |                              |x86-64                 |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 | Redhat Linux 6                   |Yes          | 2.6                          |                              |x86                    |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
@@ -214,15 +258,18 @@ current versions of Linux, OS X, and Windows.
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 | Ubuntu Linux 10.04 LTS           |Yes          | 2.6                          | 2.3.0                        |x86,x86-64             |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
-| Ubuntu Linux 12.04 LTS           |Yes          | 2.6,2.7,3.2,3.3,PyPy2.1      | 2.3.0                        |x86,x86-64             |
+| Ubuntu Linux 12.04 LTS           |Yes          | 2.6,2.7,3.2,3.3,PyPy2.4,     | 2.6.1                        |x86,x86-64             |
+|                                  |             | PyPy3,v2.3                   |                              |                       |
 |                                  |             |                              |                              |                       |
-|                                  |             | 2.7,3.2                      | 2.3.0                        |ppc                    |
+|                                  |             | 2.7,3.2                      | 2.6.1                        |ppc                    |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
-| Ubuntu Linux 13.10               |Yes          | 2.7,3.2,3.3                  | 2.3.0                        |x86                    |
+| Ubuntu Linux 14.04 LTS           |Yes          | 2.7,3.2,3.3,3.4              | 2.3.0                        |x86                    |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 | Raspian Wheezy                   |Yes          | 2.7,3.2                      | 2.3.0                        |arm                    |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 | Gentoo Linux                     |Yes          | 2.7,3.2                      | 2.1.0                        |x86-64                 |
++----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
+| FreeBSD 10                       |Yes          | 2.7,3.4                      | 2.4,2.3.1                    |x86-64                 |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 | Windows 7 Pro                    |Yes          | 2.7,3.2,3.3                  | 2.2.1                        |x86-64                 |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
@@ -233,3 +280,7 @@ current versions of Linux, OS X, and Windows.
 | Windows 8.1 Pro                  |Yes          | 2.6,2.7,3.2,3.3,3.4          | 2.3.0, 2.4.0                 |x86,x86-64             |
 +----------------------------------+-------------+------------------------------+------------------------------+-----------------------+
 
+Old Versions
+------------
+
+You can download old distributions from `PyPI <https://pypi.python.org/pypi/Pillow>`_. Only the latest 1.x and 2.x releases are visible, but all releases are available by direct URL access e.g. https://pypi.python.org/pypi/Pillow/1.0.

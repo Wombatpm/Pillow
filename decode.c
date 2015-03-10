@@ -103,6 +103,8 @@ PyImaging_DecoderNew(int contextsize)
 static void
 _dealloc(ImagingDecoderObject* decoder)
 {
+    if (decoder->cleanup)
+        decoder->cleanup(&decoder->state);
     free(decoder->state.buffer);
     free(decoder->state.context);
     Py_XDECREF(decoder->lock);
@@ -433,9 +435,6 @@ PyImaging_TiffLzwDecoderNew(PyObject* self, PyObject* args)
 #include "TiffDecode.h"
 
 #include <string.h>
-#ifdef __WIN32__
-#define strcasecmp(s1, s2) stricmp(s1, s2)
-#endif
 
 PyObject*
 PyImaging_LibTiffDecoderNew(PyObject* self, PyObject* args)
@@ -445,8 +444,9 @@ PyImaging_LibTiffDecoderNew(PyObject* self, PyObject* args)
     char* rawmode;
     char* compname;
     int fp;
+    int ifdoffset;
 
-    if (! PyArg_ParseTuple(args, "sssi", &mode, &rawmode, &compname, &fp))
+    if (! PyArg_ParseTuple(args, "sssii", &mode, &rawmode, &compname, &fp, &ifdoffset))
         return NULL;
 
     TRACE(("new tiff decoder %s\n", compname));
@@ -458,7 +458,7 @@ PyImaging_LibTiffDecoderNew(PyObject* self, PyObject* args)
     if (get_unpacker(decoder, mode, rawmode) < 0)
         return NULL;
 
-    if (! ImagingLibTiffInit(&decoder->state, fp)) {
+    if (! ImagingLibTiffInit(&decoder->state, fp, ifdoffset)) {
         Py_DECREF(decoder);
         PyErr_SetString(PyExc_RuntimeError, "tiff codec initialization failed");
         return NULL;
@@ -800,8 +800,9 @@ PyImaging_Jpeg2KDecoderNew(PyObject* self, PyObject* args)
     int reduce = 0;
     int layers = 0;
     int fd = -1;
-    if (!PyArg_ParseTuple(args, "ss|iii", &mode, &format,
-                          &reduce, &layers, &fd))
+    PY_LONG_LONG length = -1;
+    if (!PyArg_ParseTuple(args, "ss|iiiL", &mode, &format,
+                          &reduce, &layers, &fd, &length))
         return NULL;
 
     if (strcmp(format, "j2k") == 0)
@@ -824,6 +825,7 @@ PyImaging_Jpeg2KDecoderNew(PyObject* self, PyObject* args)
     context = (JPEG2KDECODESTATE *)decoder->state.context;
 
     context->fd = fd;
+    context->length = (off_t)length;
     context->format = codec_format;
     context->reduce = reduce;
     context->layers = layers;

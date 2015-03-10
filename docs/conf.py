@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath('../'))
 import PIL
 
 ### general configuration ###
@@ -35,9 +31,9 @@ pygments_style = 'sphinx'
 
 ### HTML output ###
 
-from better import better_theme_path
-html_theme_path = [better_theme_path]
-html_theme = 'better'
+#from better import better_theme_path
+#html_theme_path = [better_theme_path]
+#html_theme = 'better'
 
 html_title = "Pillow v{release} (PIL fork)".format(release=release)
 html_short_title = "Home"

@@ -530,6 +530,11 @@ static struct {
     {"RGBA",   	"B",            8,      band2},
     {"RGBA",   	"A",            8,      band3},
 
+    /* true colour w. alpha premultiplied */
+    {"RGBa",	"RGBa",		32,	copy4},
+    {"RGBa",	"BGRa",		32,	ImagingPackBGRA},
+    {"RGBa",	"aBGR",		32,	ImagingPackABGR},
+
     /* true colour w. padding */
     {"RGBX",	"RGBX",		32,	copy4},
     {"RGBX",	"RGBX;L",	32,	packRGBXL},
@@ -565,6 +570,12 @@ static struct {
     {"LAB",  	"L",           8,      band0},
     {"LAB",  	"A",           8,      band1},
     {"LAB",  	"B",           8,      band2},
+
+    /* HSV */
+    {"HSV",	    "HSV",	       24,     ImagingPackRGB},
+    {"HSV",  	"H",           8,      band0},
+    {"HSV",  	"S",           8,      band1},
+    {"HSV",  	"V",           8,      band2},
 
     /* integer */
     {"I", 	"I",		32,	copy4},
